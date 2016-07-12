@@ -31,7 +31,7 @@ void reset() {
   }
 }
 
-void debug() {
+void print_eeprom() {
   for (int i = 0; i < EEPROM_SIZE; i++){
     Serial.print(EEPROM.read(i), HEX);
     Serial.print(" ");

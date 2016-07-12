@@ -14,22 +14,12 @@ const int SIZE_UNIT_DATA = sizeof(int) + sizeof(float) + sizeof(long);
 void reset();
 
 void setup() {
-  // put your setup code here, to run once:
   EEPROM.begin(EEPROM_SIZE);
   Serial.begin(115200);
   delay(200);
-  //setSyncPeriod(300);
-  //setSamplingPeriod(60);
-  reset();
-  addData(1, 10.5, 2L);
-  addData(2, 10.5, 3L);
-  Serial.println("Size: " + String(getBufferSize()));
-  debug();
 }
 
-void loop() {
-  
-}
+void loop() {}
 
 int pointerData() {
   return ADD_BEGIN_DATA + getBufferSize() * SIZE_UNIT_DATA;
@@ -50,12 +40,14 @@ void debug() {
 
 
 void addData(int id, float value, long time){
-  int addr = pointerData();
-  EEPROM.put(addr, id);
-  EEPROM.put(addr + sizeof(int), value);
-  EEPROM.put(addr + sizeof(int) + sizeof(float), time);
-  EEPROM.commit();
-  setBufferSize(getBufferSize() + 1);  
+  if (!isBufferFull()){
+    int addr = pointerData();
+    EEPROM.put(addr, id);
+    EEPROM.put(addr + sizeof(int), value);
+    EEPROM.put(addr + sizeof(int) + sizeof(float), time);
+    EEPROM.commit();
+    setBufferSize(getBufferSize() + 1);  
+  }
 }
 
 void setBufferSize(int size){

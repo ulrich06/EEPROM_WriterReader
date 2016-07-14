@@ -6,8 +6,8 @@
 
 
 const int ADD_BUFFER = 0;
-const int ADD_SYNC = ADD_BUFFER + sizeof(int);
-const int ADD_SAMPLING = ADD_SYNC + sizeof(int);
+const int ADD_SYNC = ADD_BUFFER + sizeof(long);
+const int ADD_SAMPLING = ADD_SYNC + sizeof(long);
 const int ADD_BEGIN_DATA = ADD_SAMPLING + sizeof(int);
 const int SIZE_UNIT_DATA = sizeof(int) + sizeof(float) + sizeof(long);
 
@@ -17,6 +17,7 @@ void setup() {
   EEPROM.begin(EEPROM_SIZE);
   Serial.begin(115200);
   delay(200);
+  print_eeprom();
 }
 
 void loop() {}
@@ -55,13 +56,13 @@ void setBufferSize(int size){
   EEPROM.commit();
 }
 
-void setSyncPeriod(int period){
-  EEPROM.put(ADD_SYNC, period);
+void setSync(long time){
+  EEPROM.put(ADD_SYNC, time);
   EEPROM.commit();
 }
 
-void setSamplingPeriod(int period){
-  EEPROM.put(ADD_SAMPLING, period);
+void setSampling(long time){
+  EEPROM.put(ADD_SAMPLING, time);
   EEPROM.commit();
 }
 
@@ -71,16 +72,16 @@ int getBufferSize(){
   if (i == -1) return 0; else return i;
 }
 
-int getSyncPeriod(){
-  int i = 0;
+long getSync(){
+  long i = 0L;
   EEPROM.get(ADD_SYNC, i);
-  if (i == -1) return 0; else return i;
+  if (i == -1) return 0L; else return i;
 }
 
-int getSamplingPeriod(){
-  int i = 0;
+long getSampling(){
+  long i = 0L;
   EEPROM.get(ADD_SAMPLING, i);
-  if (i == -1) return 0; else return i;
+  if (i == -1) return 0L; else return i;
 }
 
 int isBufferFull(){

@@ -4,6 +4,12 @@
 #define VCC 1
 #define MAX_BUFFER 10
 
+typedef struct Smartcampus
+{
+  int n;
+  float v;
+  long t;
+} Smartcampus;
 
 const int ADD_BUFFER = 0;
 const int ADD_SYNC = ADD_BUFFER + sizeof(long);
@@ -16,8 +22,10 @@ void reset();
 void setup() {
   EEPROM.begin(EEPROM_SIZE);
   Serial.begin(115200);
-  delay(200);
-  print_eeprom();
+  reset();
+  Serial.println("Done");
+  
+  
 }
 
 void loop() {}
@@ -32,11 +40,19 @@ void reset() {
   }
 }
 
+void flushBuffer() {
+  for (int i = ADD_BEGIN_DATA; i < EEPROM_SIZE; i ++){
+    EEPROM.write(i, 0xFF);
+  }
+  setBufferSize(0);
+}
+
 void print_eeprom() {
   for (int i = 0; i < EEPROM_SIZE; i++){
     Serial.print(EEPROM.read(i), HEX);
     Serial.print(" ");
   }
+  Serial.println();
 }
 
 
@@ -87,3 +103,30 @@ long getSampling(){
 int isBufferFull(){
  return getBufferSize() >= MAX_BUFFER;
 }
+
+int isBufferEmpty(){
+  return getBufferSize() == 0;
+}
+
+Smartcampus * getBuffer(){
+  const int size = getBufferSize();
+  Smartcampus dataArray[size];
+  memset(dataArray, 0, sizeof(dataArray));
+  for (int i = ADD_BEGIN_DATA; i < pointerData(); i = i + SIZE_UNIT_DATA){
+     int id = 0; float v = 0.0; long t = 0L;
+     EEPROM.get(i,  id);
+     EEPROM.get(i + sizeof(int), v);
+     EEPROM.get(i + sizeof(int) + sizeof(float), t);
+     Serial.print("R- id"); Serial.println(id);
+     Serial.print("R- v"); Serial.println(v);
+     Serial.print("R- t"); Serial.println(t);
+     Serial.print("Registering in: "); Serial.print(i/SIZE_UNIT_DATA - 1); Serial.print(" i="); Serial.println(i);
+     
+     dataArray[i/SIZE_UNIT_DATA - 1].n = id;
+     dataArray[i/SIZE_UNIT_DATA - 1].v = v;
+     dataArray[i/SIZE_UNIT_DATA - 1].t = t;
+  }
+  return dataArray;
+}
+
+
